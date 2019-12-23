@@ -11,6 +11,13 @@
         <div @click="isUpdateTheme = true" style="font-size: 20px">
           <i class="el-icon-menu"></i>
         </div>
+        <div @click="screen"
+             v-if="!isScreen" style="padding: 0px 10px;">
+          <span>全屏显示</span>
+        </div>
+        <div @click="screen" v-if="isScreen" style="padding: 0px 10px;">
+          <span>关闭全屏</span>
+        </div>
         <div @click="showLoginOut = !showLoginOut" style="padding: 0px 10px;">
           <img src="../images/userHeaderImg.png" style="width: 25px;"/>
         </div>
@@ -18,6 +25,18 @@
           <span>{{userName}}</span>
         </div>
       </div>
+      <el-collapse-transition>
+        <div v-if="showLoginOut" class="setting-div">
+          <div class="settingOption-div disFlex" @click="dialogFormVisible = true">
+            <img src="../images/modifyPassword.png" class="settingOption-div-img"/>
+            <span class="settingOption-div-title">修改密码</span>
+          </div>
+          <div class="settingOption-div disFlex" @click="loginOut()">
+            <img src="../images/loginOut.png" class="settingOption-div-img"/>
+            <span class="settingOption-div-title">退出登录</span>
+          </div>
+        </div>
+      </el-collapse-transition>
     </div>
     <!--内容-->
     <div class="disFlex" style="height: calc(100% - 90px);padding:0 15px;">
@@ -59,103 +78,177 @@
       </div>
     </div>
 
+    <!--修改密码-->
+    <el-dialog title="修改密码" :visible.sync="dialogFormVisible">
+      <el-form :model="adminUser">
+        <el-form-item label="原密码">
+          <el-input v-model="adminUser.oldPassword" type="password" placeholder="请输入原密码"></el-input>
+        </el-form-item>
+        <el-form-item label="新密码">
+          <el-input v-model="adminUser.newPassword" type="password" placeholder="请输入新密码"></el-input>
+        </el-form-item>
+        <el-form-item label="重复新密码">
+          <el-input v-model="adminUser.repeatNewPassword" type="password" placeholder="请再次输入新密码"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisible = false , modifyPassword()">确 定</el-button>
+      </div>
+    </el-dialog>
     <!--更换主题-->
     <el-dialog title="更换主题" :visible.sync="isUpdateTheme">
-      <el-radio-group v-model="themeIndex" @change = "updateTheme">
-        <el-radio :label="index" v-for="(theme,index) in themeList" :key = "index">{{theme.themeName}}</el-radio>
+      <el-radio-group v-model="themeIndex" @change="updateTheme">
+        <el-radio :label="index" v-for="(theme,index) in themeList" :key="index">{{theme.themeName}}</el-radio>
       </el-radio-group>
     </el-dialog>
   </div>
 </template>
 <script>
-  import * as theme from '../const/theme';
+  import * as theme from '../const/theme'
   //引入storage
-  import * as storage from "./../utils/storage";
+  import * as storage from './../utils/storage'
+  //引入elementui  中消息提示插件
+  import {Message} from 'element-ui'
+
   export default {
-    data() {
+    data () {
       return {
         //菜单列表
         menuList: [],
         //当前登陆的用户名称
         userName: '',
         themeIndex: 0,//默认主题
-        isUpdateTheme:false,
-        themeList:[],
+        isUpdateTheme: false,
+        themeList: [],
+        showLoginOut: false,
+        dialogFormVisible: false,
+        adminUser: {
+          oldPassword: '',
+          newPassword: '',
+          repeatNewPassword: ''
+        },
+        isScreen: false,
       }
     },
     created: function () {
       //模拟登陆成功获取当前用户权限菜单
-      this.getMenuList();
-      this.userName = "MyVue";
-      this.themeList = theme.THEME.STYLE;
-      this.setTheme();  //页面加载时加载主题
+      this.getMenuList()
+      this.userName = 'MyVue'
+      this.themeList = theme.THEME.STYLE
+      this.setTheme()  //页面加载时加载主题
     },
     methods: {
-      getMenuList(){
+      getMenuList () {
         this.menuList = [
           {
-            menuName: "外部链接", isOpen: 0,
+            menuName: '外部链接', isOpen: 0,
             adminMenuList: [
               //注意，跳转路径中http://需修改为 转义字符  https%3A%2F%2F
               //否则系统会把//当作层级路径
-              {menuName: "百度", isOpen: 0, path: "/Iframe", query:"/https%3A%2F%2Fwww.baidu.com"},
-              {menuName: "Element UI", isOpen: 0, path: "/Iframe", query:"/http%3A%2F%2Felement-cn.eleme.io/#/zh-CN"}
+              {menuName: '百度', isOpen: 0, path: '/Iframe', query: '/https%3A%2F%2Fwww.baidu.com'},
+              {menuName: 'Element UI', isOpen: 0, path: '/Iframe', query: '/http%3A%2F%2Felement-cn.eleme.io/#/zh-CN'}
             ]
           },
           {
-            menuName: "用户管理", isOpen: 0,
+            menuName: '用户管理', isOpen: 0,
             adminMenuList: [
-              {menuName: "查看用户", isOpen: 0, path: "/user"}
+              {menuName: '查看用户', isOpen: 0, path: '/user'}
             ]
           }
-        ];
+        ]
       },
-      setTheme() {
-        let storageThemeIndex = storage.getStrLocalStorageItem("storageThemeIndex");
+      setTheme () {
+        let storageThemeIndex = storage.getStrLocalStorageItem('storageThemeIndex')
         if (!storageThemeIndex) {
-          storage.setStrLocalStorageItem("storageThemeIndex", 0);
+          storage.setStrLocalStorageItem('storageThemeIndex', 0)
         }
-        storageThemeIndex = storage.getStrLocalStorageItem("storageThemeIndex");
-        this.themeIndex = parseInt(storageThemeIndex);
-        this.updateTheme(storageThemeIndex);
+        storageThemeIndex = storage.getStrLocalStorageItem('storageThemeIndex')
+        this.themeIndex = parseInt(storageThemeIndex)
+        this.updateTheme(storageThemeIndex)
       },
-      updateTheme(index){
-        theme.setThemeStyle(index);
-        storage.setStrLocalStorageItem("storageThemeIndex", index);
+      updateTheme (index) {
+        theme.setThemeStyle(index)
+        storage.setStrLocalStorageItem('storageThemeIndex', index)
       },
-      showMenu(index) {
+      showMenu (index) {
         this.menuList.forEach(function (item, i) {
           if (i === index) {
-            return;
+            return
           }
-          item.isOpen = 0;
+          item.isOpen = 0
         })
-        this.menuList[index].isOpen = this.menuList[index].isOpen === 1 ? 0 : 1;
-        var menu = this.menuList[index];
+        this.menuList[index].isOpen = this.menuList[index].isOpen === 1 ? 0 : 1
+        var menu = this.menuList[index]
         menu.adminMenuList.forEach(function (item, i) {
-          menu.adminMenuList[i].isOpen = 0;
+          menu.adminMenuList[i].isOpen = 0
         })
       },
-      showMenuSon(index, index1) {
-        var menu = this.menuList[index];
+      showMenuSon (index, index1) {
+        var menu = this.menuList[index]
         menu.adminMenuList.forEach(function (item, i) {
           if (i != index1) {
-            menu.adminMenuList[i].isOpen = 0;
+            menu.adminMenuList[i].isOpen = 0
           } else {
-            menu.adminMenuList[i].isOpen = 1;
+            menu.adminMenuList[i].isOpen = 1
           }
         })
       },
-      closeMenu() {
+      closeMenu () {
         this.menuList.forEach(function (item) {
-          this.isOpen = 0;
+          this.isOpen = 0
         })
       },
-      gohome() {
+      gohome () {
         this.$router.push({
-          path: "/home"
-        });
-        this.closeMenu();
+          path: '/home'
+        })
+        this.closeMenu()
+      },
+      loginOut () {
+        this.$router.push({
+          path: '/'
+        })
+      },
+      modifyPassword () {
+        console.log('modifyPassword------------');
+        Message.success('修改成功');
+        var _this = this;
+        let newPassword = _this.adminUser.newPassword;
+        let oldPassword = _this.adminUser.oldPassword;
+        let repeatNewPassword = _this.adminUser.repeatNewPassword;
+        console.log('modifyPassword------------newPassword--' + newPassword);
+        console.log('modifyPassword------------oldPassword--' + oldPassword);
+        console.log('modifyPassword------------repeatNewPassword--' + repeatNewPassword);
+      },
+      screen() {
+        var _this = this;
+        if (!_this.isScreen) {
+          _this.openScreen();
+        } else {
+          _this.closeScreen();
+        }
+        _this.isScreen = !_this.isScreen;
+      },
+      openScreen() {
+        var docE = document.documentElement;
+        if (docE.requestFullScreen) {
+          docE.requestFullScreen();
+        } else if (docE.mozRequestFullScreen) {
+          docE.mozRequestFullScreen();
+        } else if (docE.webkitRequestFullScreen) {
+          docE.webkitRequestFullScreen();
+        }
+      },
+      closeScreen() {
+        var docE = document;
+        if (docE.exitFullscreen) {
+          docE.exitFullscreen();
+        } else if (docE.mozCancelFullScreen) {
+          docE.mozCancelFullScreen();
+        } else if (docE.webkitCancelFullScreen) {
+          docE.webkitCancelFullScreen();
+        }
       },
     }
   }
@@ -231,6 +324,39 @@
     padding: 10px 15px 10px 34px;
     cursor: pointer;
   }
+
+  .setting-div {
+    position: fixed;
+    color: var(--fontColor);
+    right: 20px;
+    top: 50px;
+    width: 125px;
+    height: 80px;
+    background-color: var(--sonMenuColor);
+    z-index: 4;
+    font-size: 14px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  .setting-div :hover {
+    cursor: pointer;
+  }
+
+  .settingOption-div {
+    padding: 10px 2px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .settingOption-div-img {
+    width: 15px;
+  }
+
+  .settingOption-div-title {
+    margin-left: 10px;
+  }
+
   .routerView {
     width: 100%;
     background: var(--viewBackgroundStyle);

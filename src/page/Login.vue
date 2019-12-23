@@ -53,6 +53,12 @@
       login() {
         var _this = this;
         if(_this.dataCheck()){
+          let loginForm = _this.loginForm;
+          let userName = loginForm.userName;
+          let password = loginForm.password;
+          console.log('userName=' + userName);
+          console.log('password=' + password);
+
           Message.success("登录成功");
           //页面跳转
           _this.$router.push("/home");
