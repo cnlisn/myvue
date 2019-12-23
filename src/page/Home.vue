@@ -1,5 +1,6 @@
 <template>
   <div style="height: 100%;background: #283542;background-size: 100%">
+    <!--标题-->
     <div class="header-div disFlex">
       <el-tooltip class="item" effect="light" content="返回首页" placement="right">
         <div class="header-div-left disFlex">
@@ -15,7 +16,9 @@
         </div>
       </div>
     </div>
+    <!--内容-->
     <div class="disFlex" style="height: calc(100% - 90px);padding:0 15px;">
+      <!--左边menu-->
       <div class="menu-list-div">
         <div v-for="(menu,index) in menuList" :key="menu.id">
           <div @click="showMenu(index)" class="menu-list-bgc disFlex">
@@ -23,8 +26,10 @@
               <span>{{menu.menuName}}</span>
             </div>
             <div style="width: 20%;text-align: right;">
-              <i class="el-icon-arrow-right"
-                 :class="[menu.isOpen == 1?'rotate':'rotate1']"
+              <!--<i class="el-icon-arrow-right"-->
+                 <!--:class="[menu.isOpen == 1?'rotate':'rotate1']"-->
+                 <!--v-if="menu.adminMenuList.length > 0"></i>-->
+              <i :class="[menu.isOpen == 1?'el-icon-arrow-down':'el-icon-arrow-right']"
                  v-if="menu.adminMenuList.length > 0"></i>
             </div>
           </div>
@@ -44,6 +49,7 @@
           </el-collapse-transition>
         </div>
       </div>
+      <!--右边content-->
       <div style="width: 100%;margin-left: 20px;">
         <!--重点   类似于HTML中iframe 路由跳转页面在这里展示-->
         <router-view class="routerView" :key="$route.fullPath"></router-view>
@@ -53,7 +59,7 @@
 </template>
 <script>
   export default {
-    data() {
+    data () {
       return {
         //菜单列表
         menuList: [],
@@ -63,46 +69,55 @@
     },
     created: function () {
       //模拟登陆成功获取当前用户权限菜单
-      this.getMenuList();
-      this.userName = "MyVue";
+      this.getMenuList()
+      this.userName = 'MyVue'
     },
     methods: {
-      getMenuList(){
+      getMenuList () {
         this.menuList = [
           {
-            menuName: "用户管理", isOpen: 0,
+            menuName: '外部链接', isOpen: 0,
             adminMenuList: [
-              {menuName: "查看用户", isOpen: 0, path: "/user"}
+              //注意，跳转路径中http://需修改为 转义字符  https%3A%2F%2F
+              //否则系统会把//当作层级路径
+              {menuName: '百度', isOpen: 0, path: '/Iframe', query: '/https%3A%2F%2Fwww.baidu.com'},
+              {menuName: 'Element UI', isOpen: 0, path: '/Iframe', query: '/http%3A%2F%2Felement-cn.eleme.io/#/zh-CN'}
+            ]
+          },
+          {
+            menuName: '用户管理', isOpen: 0,
+            adminMenuList: [
+              {menuName: '查看用户', isOpen: 0, path: '/user'}
             ]
           }
-        ];
+        ]
       },
-      showMenu(index) {
+      showMenu (index) {
         this.menuList.forEach(function (item, i) {
           if (i === index) {
-            return;
+            return
           }
-          item.isOpen = 0;
+          item.isOpen = 0
         })
-        this.menuList[index].isOpen = this.menuList[index].isOpen === 1 ? 0 : 1;
-        var menu = this.menuList[index];
+        this.menuList[index].isOpen = this.menuList[index].isOpen === 1 ? 0 : 1
+        var menu = this.menuList[index]
         menu.adminMenuList.forEach(function (item, i) {
-          menu.adminMenuList[i].isOpen = 0;
+          menu.adminMenuList[i].isOpen = 0
         })
       },
-      showMenuSon(index, index1) {
-        var menu = this.menuList[index];
+      showMenuSon (index, index1) {
+        var menu = this.menuList[index]
         menu.adminMenuList.forEach(function (item, i) {
           if (i != index1) {
-            menu.adminMenuList[i].isOpen = 0;
+            menu.adminMenuList[i].isOpen = 0
           } else {
-            menu.adminMenuList[i].isOpen = 1;
+            menu.adminMenuList[i].isOpen = 1
           }
         })
       },
-      closeMenu() {
+      closeMenu () {
         this.menuList.forEach(function (item) {
-          this.isOpen = 0;
+          this.isOpen = 0
         })
       },
     }
