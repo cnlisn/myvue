@@ -26,6 +26,7 @@ h2{
 li {
   list-style: none
 }
+
 .disFlex {
   display: -webkit-box;
   display: -moz-box;
@@ -34,10 +35,14 @@ li {
   display: -ms-flexbox;
   display: flex;
 }
+
 .padding{
   padding: 20px;
 }
 
+a :hover {
+  cursor: pointer;
+}
 
 ::-webkit-scrollbar
 {

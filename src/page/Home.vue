@@ -142,6 +142,12 @@
       getMenuList () {
         this.menuList = [
           {
+            menuName: "文章管理", isOpen: 0,
+            adminMenuList: [
+              {menuName: "添加文章", isOpen: 0, path: "/articleManage"}
+            ]
+          },
+          {
             menuName: '外部链接', isOpen: 0,
             adminMenuList: [
               //注意，跳转路径中http://需修改为 转义字符  https%3A%2F%2F
