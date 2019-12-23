@@ -26,10 +26,8 @@
               <span>{{menu.menuName}}</span>
             </div>
             <div style="width: 20%;text-align: right;">
-              <!--<i class="el-icon-arrow-right"-->
-                 <!--:class="[menu.isOpen == 1?'rotate':'rotate1']"-->
-                 <!--v-if="menu.adminMenuList.length > 0"></i>-->
-              <i :class="[menu.isOpen == 1?'el-icon-arrow-down':'el-icon-arrow-right']"
+              <i class="el-icon-arrow-right"
+                 :class="[menu.isOpen == 1?'rotate':'rotate1']"
                  v-if="menu.adminMenuList.length > 0"></i>
             </div>
           </div>
@@ -125,12 +123,12 @@
 </script>
 <style>
   a {
-    color: #fff;
+    color: var(--fontColor);
   }
 
   .header-div {
-    background-color: #2C3E50;
-    color: #fff;
+    background-color: var(--headerColor);
+    color: var(--fontColor);
     height: 70px;
     align-items: center;
     box-shadow: 3px 0 3px rgba(0, 0, 0, .3);
@@ -156,17 +154,11 @@
     cursor: pointer;
   }
 
-  .user-name {
-    margin-left: 10px;
-    font-weight: bold;
-    font-size: 20px
-  }
-
   .menu-list-div {
     width: 12%;
     max-width: 190px;
     height: calc(100% - 30px);
-    background-color: #2C3E50;
+    background-color: var(--sonMenuColor);
     font-size: 16px;
     border-radius: 5px;
     padding: 5px;
@@ -174,8 +166,8 @@
   }
 
   .menu-list-bgc {
-    background-color: #2C3E50;
-    color: #fff;
+    background-color: var(--sonMenuColor);
+    color: var(--fontColor);
     align-items: center;
     padding: 15px;
     cursor: pointer;
@@ -183,28 +175,59 @@
 
   .menuSon-list-bgc {
     margin-top: 5px;
-    background-color: #2C3E50;
+    background-color: var(--headerColor);
     padding: 10px 15px 10px 30px;
     border-radius: 5px;
   }
 
   .menuSon-list-color {
-    background-color: #21598f;
-    color: #fff;
+    background-color: var(--openSonMenuColor);
+    color: var(--openSonFontColor);
     border-left: 4px solid;
     cursor: pointer;
   }
 
   .menuSon-list-color1 {
-    margin-top: 5px;
-    color: #fff;
+    color: var(--fontColor);
     padding: 10px 15px 10px 34px;
     cursor: pointer;
   }
 
+  .setting-div {
+    position: fixed;
+    color: var(--fontColor);
+    right: 20px;
+    top: 50px;
+    width: 125px;
+    height: 80px;
+    background-color: var(--sonMenuColor);
+    z-index: 4;
+    font-size: 14px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  .setting-div :hover {
+    cursor: pointer;
+  }
+
+  .settingOption-div {
+    padding: 10px 2px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .settingOption-div-img {
+    width: 15px;
+  }
+
+  .settingOption-div-title {
+    margin-left: 10px;
+  }
+
   .routerView {
     width: 100%;
-    background: rgba(255, 255, 255, 1);
+    background: var(--viewBackgroundStyle);
     border-radius: 5px;
     height: calc(100% - 20px);
     border: 0;
