@@ -1,17 +1,20 @@
 <template>
-  <div style="height: 100%;background: #283542;background-size: 100%">
+  <div style="height: 100%;background: var(--backgroundStyle);background-size: 100%">
     <!--标题-->
     <div class="header-div disFlex">
       <el-tooltip class="item" effect="light" content="返回首页" placement="right">
-        <div class="header-div-left disFlex">
-          <span class="user-name">MyVue</span>
+        <div class="header-div-left disFlex" @click="gohome()">
+          <span style="margin-left: 10px;font-weight: bold;font-size: 20px">MyVue</span>
         </div>
       </el-tooltip>
       <div class="disFlex header-div-right">
-        <div style="padding: 0px 10px;">
+        <div @click="isUpdateTheme = true" style="font-size: 20px">
+          <i class="el-icon-menu"></i>
+        </div>
+        <div @click="showLoginOut = !showLoginOut" style="padding: 0px 10px;">
           <img src="../images/userHeaderImg.png" style="width: 25px;"/>
         </div>
-        <div>
+        <div @click="showLoginOut = !showLoginOut">
           <span>{{userName}}</span>
         </div>
       </div>
@@ -33,16 +36,18 @@
           </div>
           <el-collapse-transition>
             <div v-show="menu.isOpen==1">
-              <!--router-link 类似于HTML中a标签，用于页面跳转  其中to属性为需要跳转的路径-->
-              <router-link tag="li" :to="menuSon.query == undefined? menuSon.path : menuSon.path + menuSon.query"
-                           v-for="(menuSon,index1) in menu.adminMenuList"
-                           :key="menuSon.id">
-                <div class="menuSon-list-bgc"
-                     @click="showMenuSon(index,index1)"
-                     :class="[menuSon.isOpen==1?'menuSon-list-color':'menuSon-list-color1']">
-                  <span>{{menuSon.menuName}}</span>
-                </div>
-              </router-link>
+              <a>
+                <!--router-link 类似于HTML中a标签，用于页面跳转  其中to属性为需要跳转的路径-->
+                <router-link tag="li" :to="menuSon.query == undefined? menuSon.path : menuSon.path + menuSon.query"
+                             v-for="(menuSon,index1) in menu.adminMenuList"
+                             :key="menuSon.id">
+                  <div class="menuSon-list-bgc"
+                       @click="showMenuSon(index,index1)"
+                       :class="[menuSon.isOpen==1?'menuSon-list-color':'menuSon-list-color1']">
+                    <span>{{menuSon.menuName}}</span>
+                  </div>
+                </router-link>
+              </a>
             </div>
           </el-collapse-transition>
         </div>
@@ -53,70 +58,104 @@
         <router-view class="routerView" :key="$route.fullPath"></router-view>
       </div>
     </div>
+
+    <!--更换主题-->
+    <el-dialog title="更换主题" :visible.sync="isUpdateTheme">
+      <el-radio-group v-model="themeIndex" @change = "updateTheme">
+        <el-radio :label="index" v-for="(theme,index) in themeList" :key = "index">{{theme.themeName}}</el-radio>
+      </el-radio-group>
+    </el-dialog>
   </div>
 </template>
 <script>
+  import * as theme from '../const/theme';
+  //引入storage
+  import * as storage from "./../utils/storage";
   export default {
-    data () {
+    data() {
       return {
         //菜单列表
         menuList: [],
         //当前登陆的用户名称
         userName: '',
+        themeIndex: 0,//默认主题
+        isUpdateTheme:false,
+        themeList:[],
       }
     },
     created: function () {
       //模拟登陆成功获取当前用户权限菜单
-      this.getMenuList()
-      this.userName = 'MyVue'
+      this.getMenuList();
+      this.userName = "MyVue";
+      this.themeList = theme.THEME.STYLE;
+      this.setTheme();  //页面加载时加载主题
     },
     methods: {
-      getMenuList () {
+      getMenuList(){
         this.menuList = [
           {
-            menuName: '外部链接', isOpen: 0,
+            menuName: "外部链接", isOpen: 0,
             adminMenuList: [
               //注意，跳转路径中http://需修改为 转义字符  https%3A%2F%2F
               //否则系统会把//当作层级路径
-              {menuName: '百度', isOpen: 0, path: '/Iframe', query: '/https%3A%2F%2Fwww.baidu.com'},
-              {menuName: 'Element UI', isOpen: 0, path: '/Iframe', query: '/http%3A%2F%2Felement-cn.eleme.io/#/zh-CN'}
+              {menuName: "百度", isOpen: 0, path: "/Iframe", query:"/https%3A%2F%2Fwww.baidu.com"},
+              {menuName: "Element UI", isOpen: 0, path: "/Iframe", query:"/http%3A%2F%2Felement-cn.eleme.io/#/zh-CN"}
             ]
           },
           {
-            menuName: '用户管理', isOpen: 0,
+            menuName: "用户管理", isOpen: 0,
             adminMenuList: [
-              {menuName: '查看用户', isOpen: 0, path: '/user'}
+              {menuName: "查看用户", isOpen: 0, path: "/user"}
             ]
           }
-        ]
+        ];
       },
-      showMenu (index) {
+      setTheme() {
+        let storageThemeIndex = storage.getStrLocalStorageItem("storageThemeIndex");
+        if (!storageThemeIndex) {
+          storage.setStrLocalStorageItem("storageThemeIndex", 0);
+        }
+        storageThemeIndex = storage.getStrLocalStorageItem("storageThemeIndex");
+        this.themeIndex = parseInt(storageThemeIndex);
+        this.updateTheme(storageThemeIndex);
+      },
+      updateTheme(index){
+        theme.setThemeStyle(index);
+        storage.setStrLocalStorageItem("storageThemeIndex", index);
+      },
+      showMenu(index) {
         this.menuList.forEach(function (item, i) {
           if (i === index) {
-            return
+            return;
           }
-          item.isOpen = 0
+          item.isOpen = 0;
         })
-        this.menuList[index].isOpen = this.menuList[index].isOpen === 1 ? 0 : 1
-        var menu = this.menuList[index]
+        this.menuList[index].isOpen = this.menuList[index].isOpen === 1 ? 0 : 1;
+        var menu = this.menuList[index];
         menu.adminMenuList.forEach(function (item, i) {
-          menu.adminMenuList[i].isOpen = 0
+          menu.adminMenuList[i].isOpen = 0;
         })
       },
-      showMenuSon (index, index1) {
-        var menu = this.menuList[index]
+      showMenuSon(index, index1) {
+        var menu = this.menuList[index];
         menu.adminMenuList.forEach(function (item, i) {
           if (i != index1) {
-            menu.adminMenuList[i].isOpen = 0
+            menu.adminMenuList[i].isOpen = 0;
           } else {
-            menu.adminMenuList[i].isOpen = 1
+            menu.adminMenuList[i].isOpen = 1;
           }
         })
       },
-      closeMenu () {
+      closeMenu() {
         this.menuList.forEach(function (item) {
-          this.isOpen = 0
+          this.isOpen = 0;
         })
+      },
+      gohome() {
+        this.$router.push({
+          path: "/home"
+        });
+        this.closeMenu();
       },
     }
   }
@@ -192,39 +231,6 @@
     padding: 10px 15px 10px 34px;
     cursor: pointer;
   }
-
-  .setting-div {
-    position: fixed;
-    color: var(--fontColor);
-    right: 20px;
-    top: 50px;
-    width: 125px;
-    height: 80px;
-    background-color: var(--sonMenuColor);
-    z-index: 4;
-    font-size: 14px;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-  }
-
-  .setting-div :hover {
-    cursor: pointer;
-  }
-
-  .settingOption-div {
-    padding: 10px 2px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .settingOption-div-img {
-    width: 15px;
-  }
-
-  .settingOption-div-title {
-    margin-left: 10px;
-  }
-
   .routerView {
     width: 100%;
     background: var(--viewBackgroundStyle);
