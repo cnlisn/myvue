@@ -28,6 +28,11 @@ export default new Router({
         {path:"/Iframe/:path", component:Iframe},
         {path:"/user", component:User}
       ]
+    },
+    {
+      path:'/axiosTest',
+      name:'AxiosTest',
+      component:()=>import('../axios/axiosTest')
     }
   ]
 })
