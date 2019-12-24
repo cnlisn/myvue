@@ -202,7 +202,7 @@
       },
       closeMenu () {
         this.menuList.forEach(function (item) {
-          this.isOpen = 0
+          item.isOpen = 0
         })
       },
       gohome () {
